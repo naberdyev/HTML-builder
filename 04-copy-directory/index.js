@@ -12,11 +12,15 @@ async function makeFolder(newFolderPath) {
 
 async function copyFiles(src, dest) {
   await makeFolder(dest);
-  let files = await fs.readdir(src);
+  let files = await fs.readdir(src, { withFileTypes: true });
   files.forEach(async (file) => {
-    let filePath = path.join(src, file);
-    let destPath = path.join(dest, file);
-    await fs.copyFile(filePath, destPath);
+    let filePath = path.join(src, file.name);
+    let destPath = path.join(dest, file.name);
+    if (file[Object.getOwnPropertySymbols(file)[0]] === 2) {
+      copyFiles(filePath, destPath);
+    } else {
+      await fs.copyFile(filePath, destPath);
+    }
   });
   console.log(`Folder\n ${src}\nwas copied to\n ${dest}`);
 }
